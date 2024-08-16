@@ -37,7 +37,7 @@ display = framebufferio.FramebufferDisplay(matrix)
 
 print("Matrix Display Setup..")
 
-bitmap = displayio.OnDiskBitmap("/Roboto.bmp")
+bitmap = displayio.OnDiskBitmap("/Roboto_2g.bmp")
 
 print("Bitmap Loaded...")
 
