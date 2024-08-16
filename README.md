@@ -8,4 +8,4 @@ https://learn.adafruit.com/network-connected-metro-rgb-matrix-clock/code-the-mat
 
 # problems
 
-adafruit-io lib is not available
+adafruit-io lib is not available, seems simpleio solves the issue
