@@ -1,4 +1,4 @@
-#import time
+import time
 import board
 import displayio
 import rgbmatrix
@@ -42,7 +42,7 @@ bitmap = displayio.OnDiskBitmap("/Roboto_2g.bmp")
 print("Bitmap Loaded...")
 
 # Create a TileGrid to hold the bitmap
-tile_grid = displayio.TileGrid(bitmap, pixel_shader=bitmap.pixel_shader)
+tile_grid = displayio.TileGrid(bitmap, pixel_shader=bitmap.pixel_shader, tile_width=16, width=10)
 
 # Create a Group to hold the TileGrid
 group = displayio.Group()
@@ -57,4 +57,18 @@ print("Bitmap Displayed...")
 
 # Loop forever so you can enjoy your image
 while True:
-    pass
+    year_now, month_now, day_now, hour_now, min_now, sec_now, wd_now, yd_now, isdst_now = time.localtime()
+    hour_high = int(hour_now / 10)
+    hour_low = hour_now % 10
+    min_high = int(min_now / 10)
+    min_low = min_now % 10
+#    print(f"{hour_now}={hour_high}-{hour_low} {min_now}={min_high}-{min_low}")
+
+    #change indexes
+    tile_grid[0]=hour_high
+    tile_grid[1]=hour_low
+    tile_grid[2]=min_high
+    tile_grid[3]=min_low
+#    print(tile_grid.width)
+
+    time.sleep(60-sec_now)
