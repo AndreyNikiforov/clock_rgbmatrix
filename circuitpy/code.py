@@ -80,6 +80,7 @@ except:
     raise
 
 # ntp https://github.com/adafruit/Adafruit_CircuitPython_NTP/blob/main/adafruit_ntp.py
+# https://github.com/adafruit/circuitpython/blob/main/tests/circuitpython-manual/socketpool/datagram/ntp.py
 NTP_TO_UNIX_EPOCH = 2208988800  # 1970-01-01 00:00:00
 PACKET_SIZE = const(48)
 
@@ -126,6 +127,9 @@ with pool.socket(
     # set rtc https://learn.adafruit.com/super-simple-sunrise-lamp/code
     rtc.RTC().datetime = time.localtime(current_time)
     print(f"Time set to: {time.localtime()}")
+    
+    # get tz https://github.com/evindunn/circuitpython_tzdb
+    # calculate time with offset
 
 # Loop forever so you can enjoy your image
 while True:
