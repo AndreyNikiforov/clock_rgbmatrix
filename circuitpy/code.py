@@ -7,6 +7,7 @@ import wifi
 import os
 import socketpool
 import struct
+import rtc
 
 #import terminalio
 #from adafruit_display_text.label import Label
@@ -95,8 +96,10 @@ with pool.socket(
     for i in range(1, PACKET_SIZE):
         packet[i] = 0
 
+    local_send_ns = time.monotonic_ns()  # expanded
     socket.sendto(packet, socket_address)
     socket.recv_into(packet)
+    local_recv_ns = time.monotonic_ns()  # was destination
 
     # parse packet
     poll = struct.unpack_from("!B", packet, offset=2)[0]
@@ -107,18 +110,22 @@ with pool.socket(
     print(f"srv_recv_s, srv_recv_f:{srv_recv_s}, {srv_recv_f}")
     print(f"srv_send_s, srv_send_f:{srv_send_s}, {srv_send_f}")
 
-#    cache_offset_s = max(2**poll, self._cache_seconds)
-#    self.next_sync = local_recv_ns + cache_offset_s * 1_000_000_000
-
-
     # Convert the server times from NTP to UTC for local use
-#    srv_recv_ns = (srv_recv_s - NTP_TO_UNIX_EPOCH) * 1_000_000_000 + (
-#        srv_recv_f * 1_000_000_000 // 2**32
-#    )
-#    srv_send_ns = (srv_send_s - NTP_TO_UNIX_EPOCH) * 1_000_000_000 + (
-#        srv_send_f * 1_000_000_000 // 2**32
-#    )
+    srv_recv_ns = (srv_recv_s - NTP_TO_UNIX_EPOCH) * 1_000_000_000 + (
+        srv_recv_f * 1_000_000_000 // 2**32
+    )
+    srv_send_ns = (srv_send_s - NTP_TO_UNIX_EPOCH) * 1_000_000_000 + (
+        srv_send_f * 1_000_000_000 // 2**32
+    )
+    # Calculate (best estimate) offset between server UTC and board monotonic_ns time
+    clock_offset = (
+        (srv_recv_ns - local_send_ns) + (srv_send_ns - local_recv_ns)
+    ) // 2
 
+    current_time = (time.monotonic_ns() + clock_offset) // 1_000_000_000
+    # set rtc https://learn.adafruit.com/super-simple-sunrise-lamp/code
+    rtc.RTC().datetime = time.localtime(current_time)
+    print(f"Time set to: {time.localtime()}")
 
 # Loop forever so you can enjoy your image
 while True:
