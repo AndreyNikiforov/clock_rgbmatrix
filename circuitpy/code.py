@@ -5,6 +5,8 @@ import rgbmatrix
 import framebufferio
 import wifi
 import os
+import socketpool
+import struct
 
 #import terminalio
 #from adafruit_display_text.label import Label
@@ -74,8 +76,49 @@ try:
     print(f"My IP address: {wifi.radio.ipv4_address}")
 except:
     print("Cannot connect to Wifi")
+    raise
 
 # ntp https://github.com/adafruit/Adafruit_CircuitPython_NTP/blob/main/adafruit_ntp.py
+NTP_TO_UNIX_EPOCH = 2208988800  # 1970-01-01 00:00:00
+PACKET_SIZE = const(48)
+
+pool = socketpool.SocketPool(wifi.radio)
+socket_address = pool.getaddrinfo("0.adafruit.pool.ntp.org", 123)[0][4]
+with pool.socket(
+    socketpool.SocketPool.AF_INET, 
+    socketpool.SocketPool.SOCK_DGRAM) as socket:
+    
+    socket.settimeout(10)
+        
+    packet = bytearray(PACKET_SIZE)
+    packet[0] = 0b00100011  # Not leap second, NTP version 4, Client mode
+    for i in range(1, PACKET_SIZE):
+        packet[i] = 0
+
+    socket.sendto(packet, socket_address)
+    socket.recv_into(packet)
+
+    # parse packet
+    poll = struct.unpack_from("!B", packet, offset=2)[0]
+    srv_recv_s, srv_recv_f = struct.unpack_from("!II", packet, offset=32)
+    srv_send_s, srv_send_f = struct.unpack_from("!II", packet, offset=40)
+    
+    print(f"poll:{poll}")
+    print(f"srv_recv_s, srv_recv_f:{srv_recv_s}, {srv_recv_f}")
+    print(f"srv_send_s, srv_send_f:{srv_send_s}, {srv_send_f}")
+
+#    cache_offset_s = max(2**poll, self._cache_seconds)
+#    self.next_sync = local_recv_ns + cache_offset_s * 1_000_000_000
+
+
+    # Convert the server times from NTP to UTC for local use
+#    srv_recv_ns = (srv_recv_s - NTP_TO_UNIX_EPOCH) * 1_000_000_000 + (
+#        srv_recv_f * 1_000_000_000 // 2**32
+#    )
+#    srv_send_ns = (srv_send_s - NTP_TO_UNIX_EPOCH) * 1_000_000_000 + (
+#        srv_send_f * 1_000_000_000 // 2**32
+#    )
+
 
 # Loop forever so you can enjoy your image
 while True:
