@@ -3,6 +3,8 @@ import board
 import displayio
 import rgbmatrix
 import framebufferio
+import wifi
+import os
 
 #import terminalio
 #from adafruit_display_text.label import Label
@@ -54,6 +56,26 @@ group.append(tile_grid)
 display.root_group = group
 
 print("Bitmap Displayed...")
+
+
+# https://learn.adafruit.com/adafruit-esp32-s3-feather/circuitpython-internet-test
+print("My MAC addr:", [hex(i) for i in wifi.radio.mac_address])
+
+#print("Available WiFi networks:")
+#for network in wifi.radio.start_scanning_networks():
+#    print("\t%s\t\tRSSI: %d\tChannel: %d" % (str(network.ssid, "utf-8"),
+#                                             network.rssi, network.channel))
+#wifi.radio.stop_scanning_networks()
+try:
+    print(f"Connecting to {os.getenv('WIFI_SSID')}")
+    # throws if cannot connect
+    wifi.radio.connect(os.getenv("WIFI_SSID"), os.getenv("WIFI_PASSWORD"))
+    print(f"Connected to {os.getenv('WIFI_SSID')}")
+    print(f"My IP address: {wifi.radio.ipv4_address}")
+except:
+    print("Cannot connect to Wifi")
+
+# ntp https://github.com/adafruit/Adafruit_CircuitPython_NTP/blob/main/adafruit_ntp.py
 
 # Loop forever so you can enjoy your image
 while True:
