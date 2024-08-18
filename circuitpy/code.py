@@ -8,6 +8,7 @@ import os
 import socketpool
 import struct
 import rtc
+from collections import OrderedDict
 
 #import terminalio
 #from adafruit_display_text.label import Label
@@ -60,6 +61,44 @@ display.root_group = group
 
 print("Bitmap Displayed...")
 
+def _parse_iso_utc(iso: str) -> int:
+    """ parse ISO w/o TZ as UTC into unix epoch(sec) """
+    year = int(iso[0:4])
+    month = int(iso[5:7])
+    day = int(iso[8:10])
+    hour = int(iso[11:13])
+    minute = int(iso[14:16])
+    second = int(iso[17:19])
+    return time.mktime((year, month, day, hour, minute, second,0,-1,-1))
+
+
+# stealing from https://github.com/evindunn/circuitpython_tzdb/blob/main/tzdb/_timezone.py
+def _load_tz(tz_name: str):
+# relative imports do not work
+#    pkg = __import__(
+#            "_zones." + tz_name.replace("/", "."), globals(), locals(), ["tz_data"], 1
+#        )
+#    sorted_kv_pairs = sorted(
+#        pkg.tz_data.items(),
+#        key=lambda kv_pair: _parse_iso_utc(kv_pair[0]),
+#    )
+    from _zones.America.Los_Angeles import tz_data
+    sorted_kv_pairs = sorted(
+        tz_data.items(),
+        key=lambda kv_pair: _parse_iso_utc(kv_pair[0]),
+    )
+    return OrderedDict(sorted_kv_pairs)
+
+def _find_offset(tz_data, ts: int) -> int:
+    offset = 0
+    for iso_value, offset_value in tz_data.items():
+        if _parse_iso_utc(iso_value) <= ts:
+            offset = offset_value
+        else:
+            break
+    return offset
+    
+tz_data = _load_tz("America/Los_Angeles")
 
 # https://learn.adafruit.com/adafruit-esp32-s3-feather/circuitpython-internet-test
 print("My MAC addr:", [hex(i) for i in wifi.radio.mac_address])
@@ -87,11 +126,11 @@ PACKET_SIZE = const(48)
 pool = socketpool.SocketPool(wifi.radio)
 socket_address = pool.getaddrinfo("0.adafruit.pool.ntp.org", 123)[0][4]
 with pool.socket(
-    socketpool.SocketPool.AF_INET, 
+    socketpool.SocketPool.AF_INET,
     socketpool.SocketPool.SOCK_DGRAM) as socket:
-    
+
     socket.settimeout(10)
-        
+
     packet = bytearray(PACKET_SIZE)
     packet[0] = 0b00100011  # Not leap second, NTP version 4, Client mode
     for i in range(1, PACKET_SIZE):
@@ -106,7 +145,7 @@ with pool.socket(
     poll = struct.unpack_from("!B", packet, offset=2)[0]
     srv_recv_s, srv_recv_f = struct.unpack_from("!II", packet, offset=32)
     srv_send_s, srv_send_f = struct.unpack_from("!II", packet, offset=40)
-    
+
     print(f"poll:{poll}")
     print(f"srv_recv_s, srv_recv_f:{srv_recv_s}, {srv_recv_f}")
     print(f"srv_send_s, srv_send_f:{srv_send_s}, {srv_send_f}")
@@ -127,13 +166,17 @@ with pool.socket(
     # set rtc https://learn.adafruit.com/super-simple-sunrise-lamp/code
     rtc.RTC().datetime = time.localtime(current_time)
     print(f"Time set to: {time.localtime()}")
-    
+
     # get tz https://github.com/evindunn/circuitpython_tzdb
     # calculate time with offset
 
 # Loop forever so you can enjoy your image
 while True:
-    year_now, month_now, day_now, hour_now, min_now, sec_now, wd_now, yd_now, isdst_now = time.localtime()
+    now = time.time()
+    offset = _find_offset(tz_data, now)
+    #print(f"Now: {now}, Offset: {offset}, tz_data: {tz_data}")
+    now = now + offset * 60 * 60
+    year_now, month_now, day_now, hour_now, min_now, sec_now, wd_now, yd_now, isdst_now = time.localtime(now)
     hour_high = int(hour_now / 10)
     hour_low = hour_now % 10
     min_high = int(min_now / 10)

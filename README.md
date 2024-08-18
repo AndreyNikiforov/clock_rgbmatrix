@@ -31,3 +31,8 @@ Converting with GIMP to Grayscale produced indexed BMP, which was loaded as Pale
 
 We need indexed bmp, but https://online-converting.com/image/convert2bmp/# produces bmp as wite line (something not working)
 
+# tzdata
+
+python tzdata: https://github.com/python/tzdata/tree/master/src/tzdata/zoneinfo
+tzfile format: https://man7.org/linux/man-pages/man5/tzfile.5.html and compiler: https://man7.org/linux/man-pages/man8/zic.8.html
+cpy impl: https://github.com/evindunn/circuitpython_tzdb/tree/main
