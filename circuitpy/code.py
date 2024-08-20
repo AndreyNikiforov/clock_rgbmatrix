@@ -172,16 +172,18 @@ with pool.socket(
 
 # Loop forever so you can enjoy your image
 while True:
-    now = time.time()
+    now: int = int(time.time())
     offset = _find_offset(tz_data, now)
-    #print(f"Now: {now}, Offset: {offset}, tz_data: {tz_data}")
-    now = now + offset * 60 * 60
-    year_now, month_now, day_now, hour_now, min_now, sec_now, wd_now, yd_now, isdst_now = time.localtime(now)
-    hour_high = int(hour_now / 10)
+    #int(f"Now: {now}, Offset: {offset}")
+    now_local: int = now + int(offset * 60 * 60) # need conversion to int here! otherwise float is used and it has issues later
+    year_now, month_now, day_now, hour_now, min_now, sec_now, wd_now, yd_now, isdst_now = time.localtime(now_local)
+    hour_high = hour_now // 10
     hour_low = hour_now % 10
-    min_high = int(min_now / 10)
+    min_high = min_now // 10
     min_low = min_now % 10
-#    print(f"{hour_now}={hour_high}-{hour_low} {min_now}={min_high}-{min_low}")
+    sec_high = sec_now // 10
+    sec_low = sec_now % 10
+    #print(f"{now:d}: {hour_now}={hour_high}-{hour_low} {min_now}={min_high}-{min_low} {sec_now}={sec_high}-{sec_low}")
 
     #change indexes
     tile_grid[0]=hour_high
