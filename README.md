@@ -36,3 +36,21 @@ We need indexed bmp, but https://online-converting.com/image/convert2bmp/# produ
 python tzdata: https://github.com/python/tzdata/tree/master/src/tzdata/zoneinfo
 tzfile format: https://man7.org/linux/man-pages/man5/tzfile.5.html and compiler: https://man7.org/linux/man-pages/man8/zic.8.html
 cpy impl: https://github.com/evindunn/circuitpython_tzdb/tree/main
+
+# Installing on Device (from dev container)
+
+Install pipkin:
+```shell
+pip install pipkin
+```
+
+Install packages into `lib` folder
+```shell
+pipkin -d lib moduleA moduleB
+```
+
+Copy to CIRCUITPY drive from devcontainer HOST
+```shell
+cp -r -v ./src/* /Volumes/CIRCUITPY
+cp -r -v ./lib/* /Volumes/CIRCUITPY/lib
+```
