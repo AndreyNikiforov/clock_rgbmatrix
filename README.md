@@ -46,11 +46,10 @@ pip install pipkin
 
 Install packages into `lib` folder
 ```shell
-pipkin -d lib moduleA moduleB
+pipkin -d lib install adafruit-circuitpython-display-text
 ```
 
 Copy to CIRCUITPY drive from devcontainer HOST
 ```shell
-cp -r -v ./src/* /Volumes/CIRCUITPY
-cp -r -v ./lib/* /Volumes/CIRCUITPY/lib
+cp -r -v ./src/* /Volumes/CIRCUITPY && cp -r -v ./lib/* /Volumes/CIRCUITPY/lib
 ```
