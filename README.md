@@ -46,10 +46,10 @@ pip install pipkin
 
 Install packages into `lib` folder
 ```shell
-pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-datetime
+pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-datetime adafruit-circuitpython-gps
 ```
 
 Copy to CIRCUITPY drive from devcontainer HOST
 ```shell
-cp -r -v ./src/* /Volumes/CIRCUITPY && cp -r -v ./lib/* /Volumes/CIRCUITPY/lib
+cp -r -v ./src/* /Volumes/CIRCUITPY && cp -r -v -n ./lib/* /Volumes/CIRCUITPY/lib
 ```

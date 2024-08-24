@@ -52,7 +52,57 @@ def get_label(font):
     label.y = 10
     return label
 
+def get_gps():
+    import board
+    import adafruit_gps
+    try:
+        gps = adafruit_gps.GPS_GtopI2C(board.STEMMA_I2C(), debug=False)
+    except:
+        return None
+
+    # Turn on the basic GGA and RMC info (what you typically want)
+    gps.send_command(b"PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
+    
+    # Set update rate to once a second (1hz) which is what you typically want.
+    gps.send_command(b"PMTK220,1000")
+    return gps
+
+def print_gps_data(gps):
+    print(f"GPS fixed:{gps.has_fix}")
+    if gps.timestamp_utc != None:
+        print(f"GPS TS:{gps.timestamp_utc}")
+    if gps.latitude != None:
+        print("Latitude: {0:.6f} degrees".format(gps.latitude))
+    if gps.longitude != None:
+        print("Longitude: {0:.6f} degrees".format(gps.longitude))
+    if gps.fix_quality != None:
+        print("Fix quality: {}".format(gps.fix_quality))
+    if gps.satellites is not None:
+        print("# satellites: {}".format(gps.satellites))
+    if gps.altitude_m is not None:
+        print("Altitude: {} meters".format(gps.altitude_m))
+    if gps.speed_knots is not None:
+        print("Speed: {} knots".format(gps.speed_knots))
+    if gps.track_angle_deg is not None:
+        print("Track angle: {} degrees".format(gps.track_angle_deg))
+    if gps.horizontal_dilution is not None:
+        print("Horizontal dilution: {}".format(gps.horizontal_dilution))
+    if gps.height_geoid is not None:
+        print("Height geo ID: {} meters".format(gps.height_geoid))
+
+def gps_set_time(gps):
+    if gps.has_fix:
+        import rtc
+        rtc.RTC().datetime = gps.timestamp_utc
+
 print("Start...")
+
+print("Get GPS...")
+gps = get_gps()
+if gps == None:
+    print("No GPS found...")
+else:
+    print("GPS found...")
 
 print("Release displays...")
 
@@ -78,8 +128,16 @@ print("Show:")
 
 display.root_group = label
 
+if gps != None:
+    print_gps_data(gps)
+
 print(f"Current time:{datetime.now()}")
 
 while(True):
+    if gps != None:
+        if gps.update():
+            print(f"GPS update registered...")
+            print_gps_data(gps)
+            gps_set_time(gps)
     label.text = f"{datetime.now()}"[11:]
     time.sleep(1)
