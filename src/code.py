@@ -1,3 +1,4 @@
+from adafruit_datetime import datetime
 
 def release_displays():
     import displayio
@@ -75,6 +76,10 @@ print("Got label...")
 print("Show:")
 
 display.root_group = label
+
+print(f"Current time:{datetime.now()}")
+
+label.text = f"{datetime.now()}"
 
 while(True):
     pass
