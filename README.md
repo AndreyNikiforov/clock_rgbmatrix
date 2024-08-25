@@ -46,8 +46,10 @@ pip install pipkin
 
 Install packages into `lib` folder
 ```shell
-pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-datetime adafruit-circuitpython-gps
+pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-gps
 ```
+dt: adafruit-circuitpython-datetime
+
 
 Copy to CIRCUITPY drive from devcontainer HOST
 ```shell

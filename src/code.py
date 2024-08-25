@@ -1,4 +1,4 @@
-from adafruit_datetime import datetime
+#from adafruit_datetime import datetime
 import time
 
 def release_displays():
@@ -131,7 +131,7 @@ display.root_group = label
 if gps != None:
     print_gps_data(gps)
 
-print(f"Current time:{datetime.now()}")
+#print(f"Current time:{time.localtime()}")
 
 while(True):
     if gps != None:
@@ -139,5 +139,6 @@ while(True):
             print(f"GPS update registered...")
             print_gps_data(gps)
             gps_set_time(gps)
-    label.text = f"{datetime.now()}"[11:]
+    year_now, month_now, day_now, hour_now, minute_now, second_now, tm_wday, tm_yday, tm_isdst = time.localtime()
+    label.text = f"{hour_now}:{minute_now}:{second_now}"
     time.sleep(1)
