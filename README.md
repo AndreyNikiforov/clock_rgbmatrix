@@ -31,6 +31,8 @@ Converting with GIMP to Grayscale produced indexed BMP, which was loaded as Pale
 
 We need indexed bmp, but https://online-converting.com/image/convert2bmp/# produces bmp as wite line (something not working)
 
+fork awesome icons in pcf: https://emergent.unpythonic.net/01606790241
+
 # tzdata
 
 python tzdata: https://github.com/python/tzdata/tree/master/src/tzdata/zoneinfo
@@ -39,6 +41,8 @@ cpy impl: https://github.com/evindunn/circuitpython_tzdb/tree/main
 
 geo tz: https://github.com/evansiroky/timezone-boundary-builder
 and tz finder: https://timezonefinder.readthedocs.io/en/latest/0_getting_started.html - cannot be directly installed with pipkin (requires Clang)
+
+gps-tz hardcoded simple convert: https://github.com/SurenBono/NEO-6M_GPS_Clock/blob/master/Auto%20Timezone%20Lo-Res%20Test/NEO-6M-GPS-MCUFRIEND_GLOBAL_AUTO_TZ_CLOCK_v1.5.ino
 
 # Installing on Device (from dev container)
 
@@ -49,7 +53,7 @@ pip install pipkin
 
 Install packages into `lib` folder
 ```shell
-pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-gps adafruit-circuitpython-httpserver adafruit-circuitpython-connectionmanager
+pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-gps adafruit-circuitpython-httpserver adafruit-circuitpython-connectionmanager adafruit-circuitpython-bitmap-font
 ```
 dt: adafruit-circuitpython-datetime
 hht serve: adafruit-circuitpython-httpserver
@@ -57,5 +61,5 @@ hht serve: adafruit-circuitpython-httpserver
 
 Copy to CIRCUITPY drive from devcontainer HOST
 ```shell
-cp -r -v ./src/* /Volumes/CIRCUITPY && cp -r -v -n ./lib/* /Volumes/CIRCUITPY/lib
+cp -r -v ./src/* /Volumes/CIRCUITPY && cp -r -v ./fonts/* /Volumes/CIRCUITPY/fonts && cp -r -v -n ./lib/* /Volumes/CIRCUITPY/lib 
 ```

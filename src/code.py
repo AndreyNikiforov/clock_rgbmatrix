@@ -125,6 +125,12 @@ def start_mdns_server(radio, hostname, port):
     mdns_server.advertise_service(service_type="_http", protocol="_tcp", port=port)
     return mdns_server
 
+def get_main_font():
+    from adafruit_bitmap_font import bitmap_font
+    font = bitmap_font.load_font("fonts/font_league_spartan_vf_30_latin1.pcf")
+    return font
+
+
 ssid = f"clock_andrey"
 radio = set_ap(ssid)
 pool = build_pool(radio)
@@ -140,7 +146,7 @@ print(f"Start web server on port {web_port}...")
 
 server.start(str(radio.ipv4_address_ap), web_port)
 
-ap_wait_time_sec = 60
+ap_wait_time_sec = 5
 server_start_time = time.monotonic_ns()
 while time.monotonic_ns() < server_start_time + 1_000_000_000 * ap_wait_time_sec:
     try:
@@ -179,6 +185,7 @@ display = get_display(matrix)
 print("Got display...")
 
 font = get_font()
+# font = get_main_font()
 
 print("Got font...")
 
