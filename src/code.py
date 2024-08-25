@@ -95,7 +95,69 @@ def gps_set_time(gps):
         import rtc
         rtc.RTC().datetime = gps.timestamp_utc
 
-print("Start...")
+def set_ap(ssid):
+    import wifi
+    wifi.radio.start_ap(ssid)
+    return wifi.radio
+
+def build_pool(radio):
+    # import socketpool
+    # pool = socketpool.SocketPool(radio)
+    from adafruit_connection_manager import get_radio_socketpool
+    pool = get_radio_socketpool(radio)
+    return pool
+
+def build_web_server(pool):
+    from adafruit_httpserver import Server, Request, Response
+    server = Server(pool, "/static", debug=True)
+    @server.route("/")
+    def base(request: Request):
+        """
+        Serve a default static plain text message.
+        """
+        return Response(request, "Hello from the CircuitPython HTTP Server!")
+    return server
+
+def start_mdns_server(radio, hostname, port):
+    import mdns
+    mdns_server = mdns.Server(radio)
+    mdns_server.hostname = hostname
+    mdns_server.advertise_service(service_type="_http", protocol="_tcp", port=port)
+    return mdns_server
+
+ssid = f"clock_andrey"
+radio = set_ap(ssid)
+pool = build_pool(radio)
+server = build_web_server(pool)
+web_port = 80
+
+mdns_server_name = f"clock-andrey"
+print(f"Start mdns server {mdns_server_name}...")
+
+mdns_server = start_mdns_server(radio, mdns_server_name, web_port)
+
+print(f"Start web server on port {web_port}...")
+
+server.start(str(radio.ipv4_address_ap), web_port)
+
+ap_wait_time_sec = 60
+server_start_time = time.monotonic_ns()
+while time.monotonic_ns() < server_start_time + 1_000_000_000 * ap_wait_time_sec:
+    try:
+        from adafruit_httpserver import REQUEST_HANDLED_RESPONSE_SENT
+        # Process any waiting requests for both servers.
+        if server.poll() == REQUEST_HANDLED_RESPONSE_SENT:
+            server_start_time = time.monotonic_ns() # reset timer
+    except OSError as error:
+        print(error)
+        break
+print("Stop mdns server...")
+mdns_server.deinit()
+
+print("Stop web server...")
+server.stop()
+
+print("Start clock...")
 
 print("Get GPS...")
 gps = get_gps()

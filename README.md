@@ -37,6 +37,9 @@ python tzdata: https://github.com/python/tzdata/tree/master/src/tzdata/zoneinfo
 tzfile format: https://man7.org/linux/man-pages/man5/tzfile.5.html and compiler: https://man7.org/linux/man-pages/man8/zic.8.html
 cpy impl: https://github.com/evindunn/circuitpython_tzdb/tree/main
 
+geo tz: https://github.com/evansiroky/timezone-boundary-builder
+and tz finder: https://timezonefinder.readthedocs.io/en/latest/0_getting_started.html - cannot be directly installed with pipkin (requires Clang)
+
 # Installing on Device (from dev container)
 
 Install pipkin:
@@ -46,9 +49,10 @@ pip install pipkin
 
 Install packages into `lib` folder
 ```shell
-pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-gps
+pipkin -d lib install adafruit-circuitpython-display-text adafruit-circuitpython-gps adafruit-circuitpython-httpserver adafruit-circuitpython-connectionmanager
 ```
 dt: adafruit-circuitpython-datetime
+hht serve: adafruit-circuitpython-httpserver
 
 
 Copy to CIRCUITPY drive from devcontainer HOST
